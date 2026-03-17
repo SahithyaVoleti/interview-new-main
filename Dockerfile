@@ -19,7 +19,9 @@ WORKDIR /app
 
 # Copy requirements
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Increase timeout to 1000 seconds for large AI libraries
+RUN pip install --no-cache-dir --default-timeout=1000 -r requirements.txt
+
 
 # Copy all project files
 COPY . .
