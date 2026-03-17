@@ -20,7 +20,7 @@ numpy
 matplotlib
 
 # Media Processing (Computer Vision & Proctoring)
-opencv-python
+opencv-python-headless
 mediapipe
 ultralytics
 deepface
