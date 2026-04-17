@@ -92,14 +92,14 @@ export default function Dashboard() {
     const fetchUserResumes = async () => {
         if (!user?.id) return;
         try {
-            const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const baseUrl = typeof window !== 'undefined' ? `http://${window.location.hostname}:5000` : 'http://localhost:5000';
             const res = await fetch(`${baseUrl}/api/resume?user_id=${user.id}`);
             const data = await res.json();
             if (Array.isArray(data)) {
                 setUserResumes(data);
             }
         } catch (e) {
-            console.error("Failed to fetch resumes:", e);
+            console.warn("Failed to fetch resumes:", e);
         }
     };
 
@@ -124,7 +124,7 @@ export default function Dashboard() {
         if (!user?.id) return;
         setIsSavingResume(true);
         try {
-            const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const baseUrl = typeof window !== 'undefined' ? `http://${window.location.hostname}:5000` : 'http://localhost:5000';
             const isUpdate = !!resumeForm.id;
             const url = isUpdate ? `${baseUrl}/api/resume?id=${resumeForm.id}&user_id=${user.id}` : `${baseUrl}/api/resume`;
             const method = isUpdate ? "PUT" : "POST";
@@ -143,7 +143,7 @@ export default function Dashboard() {
                 alert("Error saving: " + (err.error || err.message || "Unknown error"));
             }
         } catch (e) {
-            console.error("Save Error:", e);
+            console.warn("Save Error:", e);
             alert("Connection error to backend.");
         } finally {
             setIsSavingResume(false);
@@ -170,18 +170,18 @@ export default function Dashboard() {
     const handleDeleteResume = async (id: string) => {
         if (!user?.id || !confirm("Are you sure you want to delete this resume?")) return;
         try {
-            const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const baseUrl = typeof window !== 'undefined' ? `http://${window.location.hostname}:5000` : 'http://localhost:5000';
             await fetch(`${baseUrl}/api/resume?id=${id}&user_id=${user.id}`, { method: "DELETE" });
             fetchUserResumes();
         } catch (e) {
-            console.error("Delete Error:", e);
+            console.warn("Delete Error:", e);
         }
     };
 
     const handleDownloadPdf = async () => {
         if (!user?.id) return;
         try {
-            const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const baseUrl = typeof window !== 'undefined' ? `http://${window.location.hostname}:5000` : 'http://localhost:5000';
             const res = await fetch(`${baseUrl}/api/resume/builder`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -230,7 +230,7 @@ export default function Dashboard() {
                 alert("Failed to generate PDF. Check backend.");
             }
         } catch (e) {
-            console.error("PDF Generation Error:", e);
+            console.warn("PDF Generation Error:", e);
             alert("Connection error.");
         }
     };
@@ -238,7 +238,7 @@ export default function Dashboard() {
     const fetchDrills = async () => {
         setIsDrillsLoading(true);
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/prep_drills`);
+            const res = await fetch(`${typeof window !== 'undefined' ? `http://${window.location.hostname}:5000` : 'http://localhost:5000'}/api/prep_drills`);
             const data = await res.json();
             if (data.status === 'success') {
                 setDrills({
@@ -249,7 +249,7 @@ export default function Dashboard() {
                 });
             }
         } catch (e) {
-            console.error("Failed to fetch drills:", e);
+            console.warn("Failed to fetch drills:", e);
         } finally {
             setIsDrillsLoading(false);
         }
@@ -259,14 +259,14 @@ export default function Dashboard() {
         if (!user?.id) return;
         setIsLoadingData(true);
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/dashboard/${user.id}`);
+            const res = await fetch(`${typeof window !== 'undefined' ? `http://${window.location.hostname}:5000` : 'http://localhost:5000'}/api/user/dashboard/${user.id}`);
             const data = await res.json();
             if (data.status === 'success') {
                 setInterviews(data.interviews);
                 if (data.user) updateUser(data.user);
             }
         } catch (e) {
-            console.error(e);
+            console.warn(e);
             alert("⚠️ Connection to server failed. Please ensure the backend is running at http://localhost:5000");
         } finally {
             setIsLoadingData(false);
@@ -789,7 +789,7 @@ export default function Dashboard() {
         e.preventDefault();
         setSaving(true);
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/profile/update`, {
+            const res = await fetch(`${typeof window !== 'undefined' ? `http://${window.location.hostname}:5000` : 'http://localhost:5000'}/api/user/profile/update`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ id: user?.id, ...profileData })
@@ -809,7 +809,7 @@ export default function Dashboard() {
         if (confirmAgain !== 'DELETE') return;
         setSaving(true);
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/delete`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: user?.id }) });
+            const res = await fetch(`${typeof window !== 'undefined' ? `http://${window.location.hostname}:5000` : 'http://localhost:5000'}/api/user/delete`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: user?.id }) });
             const data = await res.json();
             if (data.status === 'success') { logout(); router.push('/'); }
             else setMessage('❌ Failed to delete');
@@ -873,7 +873,7 @@ export default function Dashboard() {
             }, 100);
 
         } catch (err) {
-            console.error("Camera access failed:", err);
+            console.warn("Camera access failed:", err);
             setIsCapturing(false);
             alert("⚠️ I couldn't access your camera. Please ensure it's connected and you've allowed access in browser settings.");
         }
@@ -909,14 +909,14 @@ export default function Dashboard() {
                 
                 // Auto-save photo logic to make it active instantly
                 try {
-                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000'}/api/user/profile/update`, {
+                    const res = await fetch(`${typeof window !== 'undefined' ? `http://${window.location.hostname}:5000` : 'http://localhost:5000'}/api/user/profile/update`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ id: user?.id, ...profileData, photo: photoSrc })
                     });
                     const data = await res.json();
                     if (data.status === 'success') updateUser(data.user);
-                } catch (err) { console.error("Auto-save photo fail", err); }
+                } catch (err) { console.warn("Auto-save photo fail", err); }
             };
             reader.readAsDataURL(file);
         }
@@ -939,7 +939,7 @@ export default function Dashboard() {
                 alert(data.message || "Failed to analyze resume.");
             }
         } catch (err) {
-            console.error(err);
+            console.warn(err);
             alert("Connection error. Ensure backend is running.");
         } finally {
             setIsAnalyzing(false);
@@ -995,7 +995,7 @@ export default function Dashboard() {
                                     if (item.isBypass) {
                                         // MANUALLY ALLOW ACCESS - DEVELOPER BYPASS
                                         try {
-                                            const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+                                            const apiUrl = typeof window !== 'undefined' ? `http://${window.location.hostname}:5000` : 'http://localhost:5000';
                                             const res = await fetch(`${apiUrl}/api/payment/verify`, {
                                                 method: 'POST',
                                                 headers: { 'Content-Type': 'application/json' },
@@ -1013,7 +1013,7 @@ export default function Dashboard() {
                                                 window.location.reload();
                                             }
                                         } catch (e) {
-                                            console.error("Manual bypass failed:", e);
+                                            console.warn("Manual bypass failed:", e);
                                         }
                                         return;
                                     }
